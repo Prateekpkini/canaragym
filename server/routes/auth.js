@@ -57,14 +57,14 @@ router.post("/login", async (req, res) => {
     if (!email || !password)  
       return res.status(400).json({ success: false, message: "All fields are required" });
 
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
     
     if (!user) {
       if (email === "user@gmail.com" && password === "1234") {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash("1234", salt);
         user = new User({
-          name: "Test User",
+          name: "Demo User",
           email: "user@gmail.com",
           password: hashedPassword,
         });
