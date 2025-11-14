@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { AuthContext } from "../utils/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("user@gmail.com");
   const [password, setPassword] = useState("1234");
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,8 +24,7 @@ function Login() {
         password,
       });
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      login(res.data.token, res.data.user);
 
       alert("✅ Login successful!");
       navigate("/dashboard");
