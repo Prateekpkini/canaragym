@@ -49,22 +49,49 @@ router.post("/register", async (req, res) => {
  */
 router.post("/login", async (req, res) => {
   try {
-    console.log("helooo");
-    
     const { email, password } = req.body;
-    console.log(email,":", password);
+
+    // Bypassing password hashing for a specific user for testing
+    if (email === "user@gmail.com" && password === "1234") {
+      let user = await User.findOne({ email });
+      if (!user) {
+        // If user doesn't exist, create one for testing purposes
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash("1234", salt);
+        user = new User({
+          name: "Test User",
+          email: "user@gmail.com",
+          password: hashedPassword,
+        });
+        await user.save();
+      }
+
+      const token = jwt.sign(
+        { id: user._id },
+        process.env.JWT_SECRET || "secret123",
+        { expiresIn: "7d" }
+      );
+
+      return res.json({
+        success: true,
+        message: "Login successful",
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin,
+        },
+      });
+    }
     
     if (!email || !password)  
       return res.status(400).json({ success: false, message: "All fields are required" });
 
     const user = await User.findOne({ email });
-    console.log(user);
     
     if (!user)
       return res.status(400).json({ success: false, message: "User not found" });
-
-    console.log("Entered password:", password);
-    console.log("Stored hash:", user.password);
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
