@@ -18,21 +18,46 @@ function Login() {
       return;
     }
 
+    // ✅ Demo credentials for offline/Vercel deployment
+    const DEMO_EMAIL = "user@gmail.com";
+    const DEMO_PASSWORD = "1234";
+
+    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      // 🔓 Offline login - create mock token and user
+      const mockToken = "mock_jwt_token_" + Date.now();
+      const mockUser = {
+        id: "demo_user_123",
+        name: "Demo User",
+        email: "user@gmail.com",
+        isAdmin: false,
+      };
+
+      login(mockToken, mockUser);
+      alert("✅ Login successful!");
+      navigate("/dashboard");
+      return;
+    }
+
+    // 🌐 Try to connect to server if credentials don't match demo
     try {
       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
-      const res = await axios.post(`${apiUrl}/api/auth/login`, {
-        email,
-        password,
-      });
+      const res = await axios.post(
+        `${apiUrl}/api/auth/login`,
+        { email, password },
+        { timeout: 5000 } // 5 second timeout
+      );
 
       login(res.data.token, res.data.user);
-
       alert("✅ Login successful!");
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      const errorMsg = err.response?.data?.message || "Invalid login credentials or server error.";
-      alert(`❌ ${errorMsg}`);
+      if (err.code === "ECONNABORTED" || err.message.includes("Network")) {
+        alert("⚠️ Server not available. Use demo credentials (user@gmail.com / 1234) to continue offline.");
+      } else {
+        const errorMsg = err.response?.data?.message || "Invalid login credentials or server error.";
+        alert(`❌ ${errorMsg}`);
+      }
     }
   };
 

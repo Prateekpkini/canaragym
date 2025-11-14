@@ -57,20 +57,23 @@ import React from "react";
 import "./SlotCard.css";
 
 function SlotCard({ slot, onBook, userHasBooked }) {
+  // Support both 'booked' and 'bookedCount' properties
+  const bookedCount = slot.bookedCount || slot.booked || 0;
+  
   // Determine if button should be disabled
-  const isDisabled = slot.bookedCount >= 20 || userHasBooked;
+  const isDisabled = bookedCount >= 20 || userHasBooked;
 
   return (
     <div
       className={`card shadow-sm text-center p-3 ${
-        slot.bookedCount >= 20 ? "border-danger" : "border-success"
+        bookedCount >= 20 ? "border-danger" : "border-success"
       }`}
       style={{ width: "18rem", borderRadius: "15px" }}
     >
       <div className="card-body">
         <h5 className="card-title fw-bold">{slot.time}</h5>
         <p className="card-text">
-          {slot.bookedCount}/20 booked
+          {bookedCount}/20 booked
         </p>
         <button
           className={`btn ${
@@ -79,7 +82,7 @@ function SlotCard({ slot, onBook, userHasBooked }) {
           onClick={onBook}
           disabled={isDisabled}
         >
-          {slot.bookedCount >= 20
+          {bookedCount >= 20
             ? "Full"
             : userHasBooked
             ? "Already Booked"
