@@ -30,8 +30,9 @@ function Login() {
       alert("✅ Login successful!");
       navigate("/dashboard");
     } catch (err) {
-      console.error(err);
-      alert("❌ Invalid login credentials or server error.");
+      console.error("Login error:", err);
+      const errorMsg = err.response?.data?.message || "Invalid login credentials or server error.";
+      alert(`❌ ${errorMsg}`);
     }
   };
 
@@ -43,6 +44,10 @@ function Login() {
         </h3>
 
         <form onSubmit={handleLogin}>
+          <div className="alert alert-info" role="alert">
+            <small>📌 <strong>Demo Credentials:</strong> user@gmail.com / 1234</small>
+          </div>
+
           <div className="mb-3">
             <label htmlFor="email" className="form-label fw-semibold">
               Email
@@ -53,7 +58,7 @@ function Login() {
               className="form-control"
               placeholder="Enter your email"
               value={email}
-              readOnly
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -68,7 +73,7 @@ function Login() {
               className="form-control"
               placeholder="Enter your password"
               value={password}
-              readOnly
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>

@@ -57,10 +57,12 @@ router.post("/login", async (req, res) => {
     if (!email || !password)  
       return res.status(400).json({ success: false, message: "All fields are required" });
 
-    let user = await User.findOne({ email });
-    
-    if (!user) {
-      if (email === "user@gmail.com" && password === "1234") {
+    // ✅ Check for demo user first
+    if (email === "user@gmail.com" && password === "1234") {
+      let user = await User.findOne({ email });
+      
+      if (!user) {
+        // Create demo user with plain text password for demo purposes
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash("1234", salt);
         user = new User({
@@ -69,9 +71,33 @@ router.post("/login", async (req, res) => {
           password: hashedPassword,
         });
         await user.save();
-      } else {
-        return res.status(400).json({ success: false, message: "User not found" });
+        console.log("✅ Demo user created successfully");
       }
+
+      const token = jwt.sign(
+        { id: user._id },
+        process.env.JWT_SECRET || "secret123",
+        { expiresIn: "7d" }
+      );
+
+      return res.json({
+        success: true,
+        message: "Login successful",
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin,
+        },
+      });
+    }
+
+    // ✅ Regular login flow for other users
+    let user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(400).json({ success: false, message: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
