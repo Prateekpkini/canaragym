@@ -4,8 +4,8 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("user@gmail.com");
+  const [password, setPassword] = useState("1234");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -51,7 +51,7 @@ function Login() {
               className="form-control"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              readOnly
               required
             />
           </div>
@@ -66,7 +66,7 @@ function Login() {
               className="form-control"
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              readOnly
               required
             />
           </div>
